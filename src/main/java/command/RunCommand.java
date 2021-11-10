@@ -23,7 +23,7 @@ public class RunCommand extends AbstractRunnableCommand {
     public void execute(String[] strings) {
         int degree = (int) applicationState.getVariable("degree");
         UnivariateFunction function = (UnivariateFunction) applicationState.getVariable("function");
-        List<Double> listX = getChebyshevNodes(degree, new Interval(-1.0, 1.0));
+        List<Double> listX = getDistributedNodes(degree, new Interval(-1.0, 1.0));
         List<Double> listY = listX.stream().map(function::value).collect(Collectors.toList());
         PolynomialFunction result = buildPolynomial(listX, listY);
         ConsoleUtils.println("Lagrange's polynomial:");
@@ -61,6 +61,16 @@ public class RunCommand extends AbstractRunnableCommand {
             double delta = x_i - listX.get(k);
             double[] coefficients = new double[]{-1 * listX.get(k) / delta, 1 / delta};
             out = out.multiply(new PolynomialFunction(coefficients));
+        }
+        return out;
+    }
+
+    private static List<Double> getDistributedNodes(int degree, Interval interval) {
+        List<Double> out = new ArrayList<>();
+        double factor = (interval.getSup() - interval.getInf()) / degree;
+        for (int i = 0; i < degree; i++) {
+            double result = interval.getInf() + i * factor;
+            out.add(result);
         }
         return out;
     }
